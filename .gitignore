@@ -95,6 +95,7 @@ cmake-build-release/
 
 # File-based project format
 *.iws
+google-services.json
 
 # IntelliJ
 out/
