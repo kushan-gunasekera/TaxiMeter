@@ -21,6 +21,7 @@ gen/
 
 # Local configuration file (sdk path, etc)
 local.properties
+/local.properties
 
 # Gradle generated files
 .gradle/
@@ -39,6 +40,7 @@ local.properties
 /.idea/libraries
 .idea/libraries/
 .idea/workspace.xml
+/.idea/workspace.xml
 .idea/tasks.xml
 .idea/.name
 .idea/compiler.xml
@@ -56,6 +58,7 @@ local.properties
 .idea/**/dictionaries
 .idea/**/shelf
 .idea/caches/build_file_checksums.ser
+.idea/caches/*.ser
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -79,6 +82,7 @@ local.properties
 .externalNativeBuild
 
 # OS-specific files
+.externalNativeBuild
 .DS_Store
 .DS_Store?
 ._*
