@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     public static Location previousLocation;
     public static float totalDistance;
     public static String waitingTimePeriod;
+    public static boolean statusChanged;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +103,7 @@ public class MainActivity extends AppCompatActivity
                 previousLocation = null;
                 waitingTimePeriod = "00:00:00";
                 totalDistance = (float) 0;
-
+                statusChanged = true;
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                 start.setVisibility(View.GONE);
                 end.setVisibility(View.VISIBLE);
@@ -119,6 +120,25 @@ public class MainActivity extends AppCompatActivity
                 start.setVisibility(View.VISIBLE);
                 end.setVisibility(View.GONE);
                 pause.setVisibility(View.GONE);
+            }
+        });
+
+        pause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                statusChanged = false;
+                resume.setVisibility(View.VISIBLE);
+                pause.setVisibility(View.GONE);
+                previousLocation = null;
+            }
+        });
+
+        resume.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                statusChanged = true;
+                pause.setVisibility(View.VISIBLE);
+                resume.setVisibility(View.GONE);
             }
         });
 

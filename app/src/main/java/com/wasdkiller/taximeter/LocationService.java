@@ -25,8 +25,6 @@ import java.util.Date;
 
 public class LocationService extends Service implements LocationListener{
 
-    MainActivity test = new MainActivity();
-
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -35,7 +33,8 @@ public class LocationService extends Service implements LocationListener{
 
     @Override
     public void onLocationChanged(Location location) {
-        float taxiSpeed = location.getSpeed()*(float)3.5;
+        if(MainActivity.statusChanged){
+            float taxiSpeed = location.getSpeed()*(float)3.5;
 //        test.taxiMeterUpdate();
 //        Log.i("TaxiMeter", "onLocationChanged");
 //        Log.i("TaxiMeter", MainActivity.speed.toString());
@@ -43,39 +42,39 @@ public class LocationService extends Service implements LocationListener{
 //        Date dt = new Date(location.getTime());
 //        Log.i("TaxiMeter", String.valueOf(dt));
 
-        if(MainActivity.previousLocation==null){
-//            Log.i("TaxiMeter", "MainActivity.previousLocation==null");
+            if(MainActivity.previousLocation==null){
+            Log.i("TaxiMeter", "MainActivity.previousLocation==null");
 //            Log.i("TaxiMeter", "set previousLocation values " + location.toString());
-            MainActivity.previousLocation = new Location("");
-            MainActivity.previousLocation = location;
+                MainActivity.previousLocation = new Location("");
+                MainActivity.previousLocation = location;
 //            Log.i("TaxiMeter", String.valueOf(MainActivity.previousLocation));
 //            MainActivity.previousLocation.setLongitude();
 //            MainActivity.previousLocation.setLatitude();
 
-        }
-        else{
+            }
+            else{
 //            Log.i("TaxiMeter", "MainActivity.previousLocation!=null");
 //            Log.i("TaxiMeter", "current gps location " + location.toString());
-            float distance = location.distanceTo(MainActivity.previousLocation);
-            Log.i("TaxiMeter", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + String.valueOf(distance));
-            Log.i("TaxiMeter", "distance : "+String.format("%.5f",distance));
-            MainActivity.previousLocation = new Location("");
-            MainActivity.previousLocation = location;
+                float distance = location.distanceTo(MainActivity.previousLocation);
+                Log.i("TaxiMeter", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + String.valueOf(distance));
+                Log.i("TaxiMeter", "distance : "+String.format("%.5f",distance));
+                MainActivity.previousLocation = new Location("");
+                MainActivity.previousLocation = location;
 //            Log.i("TaxiMeter", "set previousLocation values " + MainActivity.previousLocation.toString());
-            MainActivity.totalDistance = MainActivity.totalDistance + distance/1000;
-            Log.i("TaxiMeter", "total distance : "+String.format("%.2f",MainActivity.totalDistance));
-            MainActivity.distance.setText(String.format("%.2f",MainActivity.totalDistance));
-            Log.i("TaxiMeter", String.format("%.2f",MainActivity.totalDistance));
-            MainActivity.speed.setText(String.valueOf(taxiSpeed));
-            if(taxiSpeed==(float)0.0){
-                try {
-                    calculateTime();
-                } catch (ParseException e) {
-                    e.printStackTrace();
+                MainActivity.totalDistance = MainActivity.totalDistance + distance/1000;
+                Log.i("TaxiMeter", "total distance : "+String.format("%.2f",MainActivity.totalDistance));
+                MainActivity.distance.setText(String.format("%.2f",MainActivity.totalDistance));
+                Log.i("TaxiMeter", String.format("%.2f",MainActivity.totalDistance));
+                MainActivity.speed.setText(String.valueOf(taxiSpeed));
+                if(taxiSpeed==(float)0.0){
+                    try {
+                        calculateTime();
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
-
     }
 
     @Override
