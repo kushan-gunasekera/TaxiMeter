@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity
     Button start;
     Button end;
     Button pause;
+    Button resume;
     public static TextView speed;
     public static TextView distance;
     public static TextView waitingTime;
@@ -69,6 +70,7 @@ public class MainActivity extends AppCompatActivity
         start = (Button) findViewById(R.id.startButton);
         end = (Button) findViewById(R.id.endButton);
         pause = (Button) findViewById(R.id.pauseButton);
+        resume = (Button) findViewById(R.id.resumeButton);
         speed = (TextView) findViewById(R.id.speed);
         distance = (TextView) findViewById(R.id.distance);
         waitingTime = (TextView) findViewById(R.id.waitingTime);
@@ -104,6 +106,7 @@ public class MainActivity extends AppCompatActivity
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                 start.setVisibility(View.GONE);
                 end.setVisibility(View.VISIBLE);
+                pause.setVisibility(View.VISIBLE);
 
             }
         });
@@ -115,6 +118,7 @@ public class MainActivity extends AppCompatActivity
                 locationManager.removeUpdates(locationListener);
                 start.setVisibility(View.VISIBLE);
                 end.setVisibility(View.GONE);
+                pause.setVisibility(View.GONE);
             }
         });
 
