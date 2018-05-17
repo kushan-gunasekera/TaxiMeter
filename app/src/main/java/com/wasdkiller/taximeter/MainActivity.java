@@ -38,7 +38,7 @@ import java.sql.Time;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    LocationManager locationManager;
+    public static LocationManager locationManager;
     LocationListener locationListener;
     Button start;
     Button end;
@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity
         speed = (TextView) findViewById(R.id.speed);
         distance = (TextView) findViewById(R.id.distance);
         waitingTime = (TextView) findViewById(R.id.waitingTime);
+        locationListener = new LocationService();
         checkPermission();
 
         start.setOnClickListener(new View.OnClickListener() {
@@ -99,8 +100,10 @@ public class MainActivity extends AppCompatActivity
                 previousLocation = null;
                 waitingTimePeriod = "00:00:00";
                 totalDistance = (float) 0;
-                locationManager.removeUpdates(new LocationService());
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationService());
+
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
+                start.setVisibility(View.GONE);
+                end.setVisibility(View.VISIBLE);
 
             }
         });
@@ -108,7 +111,10 @@ public class MainActivity extends AppCompatActivity
         end.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Log.i("TaxiMeter", "END button pressed");
+                locationManager.removeUpdates(locationListener);
+                start.setVisibility(View.VISIBLE);
+                end.setVisibility(View.GONE);
             }
         });
 
