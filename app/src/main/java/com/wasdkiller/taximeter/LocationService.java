@@ -1,6 +1,7 @@
 package com.wasdkiller.taximeter;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -34,6 +35,7 @@ public class LocationService extends Service implements LocationListener{
 
     @Override
     public void onLocationChanged(Location location) {
+        float taxiSpeed = location.getSpeed()*(float)3.5;
 //        test.taxiMeterUpdate();
 //        Log.i("TaxiMeter", "onLocationChanged");
 //        Log.i("TaxiMeter", MainActivity.speed.toString());
@@ -56,14 +58,6 @@ public class LocationService extends Service implements LocationListener{
 //            Log.i("TaxiMeter", "current gps location " + location.toString());
             float distance = location.distanceTo(MainActivity.previousLocation);
             Log.i("TaxiMeter", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + String.valueOf(distance));
-            if(distance<(float)0.0090000000){
-                Log.i("TaxiMeter", "Waiting time Activated");
-                try {
-                    calculateTime();
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-            }
             Log.i("TaxiMeter", "distance : "+String.format("%.5f",distance));
             MainActivity.previousLocation = new Location("");
             MainActivity.previousLocation = location;
@@ -72,7 +66,14 @@ public class LocationService extends Service implements LocationListener{
             Log.i("TaxiMeter", "total distance : "+String.format("%.2f",MainActivity.totalDistance));
             MainActivity.distance.setText(String.format("%.2f",MainActivity.totalDistance));
             Log.i("TaxiMeter", String.format("%.2f",MainActivity.totalDistance));
-            MainActivity.speed.setText(String.valueOf(location.getSpeed()));
+            MainActivity.speed.setText(String.valueOf(taxiSpeed));
+            if(taxiSpeed==(float)0.0){
+                try {
+                    calculateTime();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
     }
@@ -98,7 +99,7 @@ public class LocationService extends Service implements LocationListener{
 
     public void calculateTime() throws ParseException {
 //        String myTime = "14:10";
-        SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
         Date d = df.parse(MainActivity.waitingTimePeriod);
         Calendar cal = Calendar.getInstance();
         cal.setTime(d);
