@@ -55,6 +55,7 @@ local.properties
 .idea/**/tasks.xml
 .idea/**/dictionaries
 .idea/**/shelf
+/.idea/caches/build_file_checksums.ser
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
