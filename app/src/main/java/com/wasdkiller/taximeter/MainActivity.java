@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser()== null){
                     Log.i("TaxiMeter",".getCurrentUser()== null");
+                    mAuth.removeAuthStateListener(mAuthListener);
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 }
                 else{
@@ -284,8 +285,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_signout) {
-            Log.i("TaxiMeter","nav_signout window clicked");
             mAuth.signOut();
+            Log.i("TaxiMeter","nav_signout window clicked");
+
         } else if (id == R.id.nav_user_details) {
             Log.i("TaxiMeter","nav_user_details window clicked");
         } else if (id == R.id.nav_history) {
