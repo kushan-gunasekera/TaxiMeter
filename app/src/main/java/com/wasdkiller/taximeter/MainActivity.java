@@ -33,6 +33,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.provider.Settings;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.sql.Time;
 
 public class MainActivity extends AppCompatActivity
@@ -51,6 +53,14 @@ public class MainActivity extends AppCompatActivity
     public static float totalDistance;
     public static String waitingTimePeriod;
     public static boolean statusChanged;
+    FirebaseAuth mAuth;
+    FirebaseAuth.AuthStateListener mAuthListener;
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +86,21 @@ public class MainActivity extends AppCompatActivity
         distance = (TextView) findViewById(R.id.distance);
         waitingTime = (TextView) findViewById(R.id.waitingTime);
         locationListener = new LocationService();
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                if(firebaseAuth.getCurrentUser()== null){
+                    Log.i("TaxiMeter",".getCurrentUser()== null");
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                }
+                else{
+                    Log.i("TaxiMeter",".getCurrentUser()!= null");
+                }
+            }
+        };
+
         checkPermission();
 
         start.setOnClickListener(new View.OnClickListener() {
@@ -258,18 +283,15 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        if (id == R.id.nav_signout) {
+            Log.i("TaxiMeter","nav_signout window clicked");
+            mAuth.signOut();
+        } else if (id == R.id.nav_user_details) {
+            Log.i("TaxiMeter","nav_user_details window clicked");
+        } else if (id == R.id.nav_history) {
+            Log.i("TaxiMeter","nav_history window clicked");
+        } else if (id == R.id.nav_settings) {
+            Log.i("TaxiMeter","nav_settings window click start");
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
