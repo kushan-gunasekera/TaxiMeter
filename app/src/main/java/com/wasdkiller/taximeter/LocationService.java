@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.provider.Settings;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,6 +35,9 @@ public class LocationService extends Service implements LocationListener{
     @Override
     public void onLocationChanged(Location location) {
         if(MainActivity.statusChanged){
+            MainActivity.progressBarView.setVisibility(View.GONE);
+            MainActivity.end.setEnabled(true);
+            MainActivity.pause.setEnabled(true);
             float taxiSpeed = location.getSpeed()*(float)3.5;
 //        test.taxiMeterUpdate();
 //        Log.i("TaxiMeter", "onLocationChanged");

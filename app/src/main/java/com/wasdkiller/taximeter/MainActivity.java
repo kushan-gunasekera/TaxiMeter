@@ -29,6 +29,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.provider.Settings;
@@ -42,10 +43,10 @@ public class MainActivity extends AppCompatActivity
 
     public static LocationManager locationManager;
     LocationListener locationListener;
-    Button start;
-    Button end;
-    Button pause;
-    Button resume;
+    public static Button start;
+    public static Button end;
+    public static Button pause;
+    public static Button resume;
     public static TextView speed;
     public static TextView distance;
     public static TextView waitingTime;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity
     public static float totalDistance;
     public static String waitingTimePeriod;
     public static boolean statusChanged;
+    public static ProgressBar progressBarView;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -86,6 +88,7 @@ public class MainActivity extends AppCompatActivity
         distance = (TextView) findViewById(R.id.distance);
         waitingTime = (TextView) findViewById(R.id.waitingTime);
         locationListener = new LocationService();
+        progressBarView = (ProgressBar) findViewById(R.id.progressBar);
         mAuth = FirebaseAuth.getInstance();
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
@@ -130,8 +133,11 @@ public class MainActivity extends AppCompatActivity
                 waitingTimePeriod = "00:00:00";
                 totalDistance = (float) 0;
                 statusChanged = true;
+                progressBarView.setVisibility(View.VISIBLE);
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
                 start.setVisibility(View.GONE);
+                end.setEnabled(false);
+                pause.setEnabled(false);
                 end.setVisibility(View.VISIBLE);
                 pause.setVisibility(View.VISIBLE);
 
@@ -146,6 +152,8 @@ public class MainActivity extends AppCompatActivity
                 start.setVisibility(View.VISIBLE);
                 end.setVisibility(View.GONE);
                 pause.setVisibility(View.GONE);
+                resume.setVisibility(View.GONE);
+                progressBarView.setVisibility(View.GONE);
             }
         });
 
@@ -156,6 +164,7 @@ public class MainActivity extends AppCompatActivity
                 resume.setVisibility(View.VISIBLE);
                 pause.setVisibility(View.GONE);
                 previousLocation = null;
+                progressBarView.setVisibility(View.VISIBLE);
             }
         });
 
@@ -165,6 +174,7 @@ public class MainActivity extends AppCompatActivity
                 statusChanged = true;
                 pause.setVisibility(View.VISIBLE);
                 resume.setVisibility(View.GONE);
+                progressBarView.setVisibility(View.GONE);
             }
         });
 
