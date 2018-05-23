@@ -37,6 +37,7 @@ import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.provider.Settings;
@@ -61,22 +62,14 @@ public class MainActivity extends AppCompatActivity
 
     public static LocationManager locationManager;
     LocationListener locationListener;
-    public static Button start;
-    public static Button end;
-    public static Button pause;
-    public static Button resume;
-    public static TextView speed;
-    public static TextView distance;
-    public static TextView waitingTime;
-    public static TextView fare;
-    public static TextView username;
-    public static TextView email;
+    public static Button start, end, pause, resume;
+    public static TextView speed, distance, waitingTime, fare, username, email;
     public static ImageView userImage;
     public static Location previousLocation;
     public static float totalDistance;
     public static String waitingTimePeriod;
-    public static boolean statusChanged;
-    public static ProgressBar progressBarView;
+    public static boolean statusChanged, signInOutStatus = true;
+    public static RelativeLayout progressBarView;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
     Typeface taxiFont;
@@ -116,7 +109,7 @@ public class MainActivity extends AppCompatActivity
         email = (TextView) navigationView.getHeaderView(0).findViewById(R.id.emailView);
         userImage = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.userImageView);
         locationListener = new LocationService(getApplicationContext());
-        progressBarView = (ProgressBar) findViewById(R.id.progressBar);
+        progressBarView = (RelativeLayout) findViewById(R.id.progressBarLayout);
         mAuth = FirebaseAuth.getInstance();
         taxiFont = Typeface.createFromAsset(getAssets(), "fonts/taximeter.ttf");
         speed.setTypeface(taxiFont);
@@ -124,33 +117,20 @@ public class MainActivity extends AppCompatActivity
         waitingTime.setTypeface(taxiFont);
         fare.setTypeface(taxiFont);
 
-
-
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                progressBarView.setVisibility(View.VISIBLE);
                 if(firebaseAuth.getCurrentUser()== null){
                     Log.i("TaxiMeter",".getCurrentUser()== null");
                     mAuth.removeAuthStateListener(mAuthListener);
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), "Signing out", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     username.setText(mAuth.getCurrentUser().getDisplayName());
                     email.setText(mAuth.getCurrentUser().getEmail());
-//                    uri = Uri.parse(mAuth.getCurrentUser().getPhotoUrl().toString());
-//                    userImage.setImageURI(null);
-//                    userImage.setImage(mAuth.getCurrentUser().getPhotoUrl());
-//                    File imgFile = new  File(mAuth.getCurrentUser().getPhotoUrl().toString());
-//                    Bitmap myBitmap = BitmapFactory.decodeFile(mAuth.getCurrentUser().getPhotoUrl().toString());
-//                    try ( InputStream is = new URL( mAuth.getCurrentUser().getPhotoUrl().toString()).openStream() ) {
-//                        Bitmap bitmap = BitmapFactory.decodeStream( is );
-//                        Log.i("TaxiMeter","bitmap lol");
-//                    } catch (MalformedURLException e) {
-//                        e.printStackTrace();
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
                     uri = Uri.parse(mAuth.getCurrentUser().getPhotoUrl().toString());
 
                     userImage.setImageURI(uri);
@@ -161,14 +141,8 @@ public class MainActivity extends AppCompatActivity
                             .bitmapTransform(new CircleTransform(getApplicationContext()))
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(userImage);
-
-                    Log.i("TaxiMeter","URI : "+ userImage.toString());
-                    Log.i("TaxiMeter",".getCurrentUser()!= null");
-                    Log.i("TaxiMeter",mAuth.getCurrentUser().getDisplayName().toString());
-                    Log.i("TaxiMeter",mAuth.getCurrentUser().getEmail().toString());
-                    Log.i("TaxiMeter",mAuth.getCurrentUser().getPhotoUrl().toString());
-                    Log.i("TaxiMeter",mAuth.getCurrentUser().getUid().toString());
                 }
+                progressBarView.setVisibility(View.GONE);
             }
         };
 
@@ -177,6 +151,10 @@ public class MainActivity extends AppCompatActivity
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                fare.setText("0000.00");
+                distance.setText("00.0");
+                waitingTime.setText("00:00:00");
+                speed.setText("00.0");
                 Log.i("TaxiMeter", "START button pressed");
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -322,15 +300,15 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
-    }
+//    @Override
+//    public void onBackPressed() {
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        if (drawer.isDrawerOpen(GravityCompat.START)) {
+//            drawer.closeDrawer(GravityCompat.START);
+//        } else {
+//            super.onBackPressed();
+//        }
+//    }
 
 
     @Override
@@ -362,6 +340,7 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_signout) {
+            signInOutStatus = false;
             mAuth.signOut();
             Log.i("TaxiMeter","nav_signout window clicked");
 

@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -28,6 +30,7 @@ public class LoginActivity extends AppCompatActivity {
     SignInButton button;
     FirebaseAuth mAuth;
     private final static int RC_SIGN_IN=2;
+    public static RelativeLayout loginProgressBarView;
     GoogleSignInClient mGoogleSignInClient;
     FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -45,6 +48,7 @@ public class LoginActivity extends AppCompatActivity {
 
         button = (SignInButton) findViewById(R.id.sign_in_button);
         mAuth = FirebaseAuth.getInstance();
+        loginProgressBarView = (RelativeLayout) findViewById(R.id.loginProgressBarLayout);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,8 +61,15 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser()!= null){
+                    Toast.makeText(getApplicationContext(), "Signing in as "+ firebaseAuth.getCurrentUser().getEmail(), Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    Log.i("TaxiMeter", "GOOGLE LOGED IN");
                 }
+                else {
+                    if(MainActivity.signInOutStatus)
+                        Toast.makeText(getApplicationContext(), "logging failed", Toast.LENGTH_SHORT).show();
+                }
+                loginProgressBarView.setVisibility(View.GONE);
             }
         };
 
@@ -75,6 +86,7 @@ public class LoginActivity extends AppCompatActivity {
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
+        loginProgressBarView.setVisibility(View.VISIBLE);
     }
 
     @Override

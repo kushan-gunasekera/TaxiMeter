@@ -73,9 +73,9 @@ public class LocationService extends Service implements LocationListener{
                 MainActivity.previousLocation = location;
 //            Log.i("TaxiMeter", "set previousLocation values " + MainActivity.previousLocation.toString());
                 MainActivity.totalDistance = MainActivity.totalDistance + distance/1000;
-                Log.i("TaxiMeter", "total distance : "+String.format("%.2f",MainActivity.totalDistance));
-                MainActivity.distance.setText(String.format("%.2f",MainActivity.totalDistance));
-                Log.i("TaxiMeter", String.format("%.2f",MainActivity.totalDistance));
+                Log.i("TaxiMeter", "total distance : "+String.format("%.1f",MainActivity.totalDistance));
+                MainActivity.distance.setText(String.format("%.1f",MainActivity.totalDistance));
+                Log.i("TaxiMeter", String.format("%.1f",MainActivity.totalDistance));
                 MainActivity.speed.setText(String.valueOf(taxiSpeed));
                 if(taxiSpeed==(float)0.0){
                     try {
