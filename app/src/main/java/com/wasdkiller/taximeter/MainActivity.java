@@ -185,7 +185,6 @@ public class MainActivity extends AppCompatActivity
                 pause.setEnabled(false);
                 end.setVisibility(View.VISIBLE);
                 pause.setVisibility(View.VISIBLE);
-
             }
         });
 
