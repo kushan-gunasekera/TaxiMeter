@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -25,6 +26,12 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class LocationService extends Service implements LocationListener{
+
+    private final Context context;
+
+    public LocationService(Context context) {
+        this.context = context;
+    }
 
     @Nullable
     @Override
@@ -98,6 +105,9 @@ public class LocationService extends Service implements LocationListener{
 //        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 //        startActivity(intent);
 //        displayGpsStatus();
+        Intent i = new Intent(this, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(i);
     }
 
     public void calculateTime() throws ParseException {

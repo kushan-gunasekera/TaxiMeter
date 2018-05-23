@@ -7,13 +7,19 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -29,14 +35,26 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.provider.Settings;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.sql.Time;
+
+import static com.wasdkiller.taximeter.R.id.emailView;
+import static com.wasdkiller.taximeter.R.id.userImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -50,6 +68,10 @@ public class MainActivity extends AppCompatActivity
     public static TextView speed;
     public static TextView distance;
     public static TextView waitingTime;
+    public static TextView fare;
+    public static TextView username;
+    public static TextView email;
+    public static ImageView userImage;
     public static Location previousLocation;
     public static float totalDistance;
     public static String waitingTimePeriod;
@@ -57,6 +79,8 @@ public class MainActivity extends AppCompatActivity
     public static ProgressBar progressBarView;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
+    Typeface taxiFont;
+    Uri uri;
 
     @Override
     protected void onStart() {
@@ -65,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -87,11 +111,23 @@ public class MainActivity extends AppCompatActivity
         speed = (TextView) findViewById(R.id.speed);
         distance = (TextView) findViewById(R.id.distance);
         waitingTime = (TextView) findViewById(R.id.waitingTime);
-        locationListener = new LocationService();
+        fare = (TextView) findViewById(R.id.fare);
+        username = (TextView) navigationView.getHeaderView(0).findViewById(R.id.usernameView);
+        email = (TextView) navigationView.getHeaderView(0).findViewById(R.id.emailView);
+        userImage = (ImageView) navigationView.getHeaderView(0).findViewById(R.id.userImageView);
+        locationListener = new LocationService(getApplicationContext());
         progressBarView = (ProgressBar) findViewById(R.id.progressBar);
         mAuth = FirebaseAuth.getInstance();
+        taxiFont = Typeface.createFromAsset(getAssets(), "fonts/taximeter.ttf");
+        speed.setTypeface(taxiFont);
+        distance.setTypeface(taxiFont);
+        waitingTime.setTypeface(taxiFont);
+        fare.setTypeface(taxiFont);
+
+
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
+            @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser()== null){
@@ -100,7 +136,38 @@ public class MainActivity extends AppCompatActivity
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 }
                 else{
+                    username.setText(mAuth.getCurrentUser().getDisplayName());
+                    email.setText(mAuth.getCurrentUser().getEmail());
+//                    uri = Uri.parse(mAuth.getCurrentUser().getPhotoUrl().toString());
+//                    userImage.setImageURI(null);
+//                    userImage.setImage(mAuth.getCurrentUser().getPhotoUrl());
+//                    File imgFile = new  File(mAuth.getCurrentUser().getPhotoUrl().toString());
+//                    Bitmap myBitmap = BitmapFactory.decodeFile(mAuth.getCurrentUser().getPhotoUrl().toString());
+//                    try ( InputStream is = new URL( mAuth.getCurrentUser().getPhotoUrl().toString()).openStream() ) {
+//                        Bitmap bitmap = BitmapFactory.decodeStream( is );
+//                        Log.i("TaxiMeter","bitmap lol");
+//                    } catch (MalformedURLException e) {
+//                        e.printStackTrace();
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+                    uri = Uri.parse(mAuth.getCurrentUser().getPhotoUrl().toString());
+
+                    userImage.setImageURI(uri);
+
+                    Glide.with(getApplicationContext()).load(mAuth.getCurrentUser().getPhotoUrl().toString())
+                            .crossFade()
+                            .thumbnail(0.5f)
+                            .bitmapTransform(new CircleTransform(getApplicationContext()))
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .into(userImage);
+
+                    Log.i("TaxiMeter","URI : "+ userImage.toString());
                     Log.i("TaxiMeter",".getCurrentUser()!= null");
+                    Log.i("TaxiMeter",mAuth.getCurrentUser().getDisplayName().toString());
+                    Log.i("TaxiMeter",mAuth.getCurrentUser().getEmail().toString());
+                    Log.i("TaxiMeter",mAuth.getCurrentUser().getPhotoUrl().toString());
+                    Log.i("TaxiMeter",mAuth.getCurrentUser().getUid().toString());
                 }
             }
         };

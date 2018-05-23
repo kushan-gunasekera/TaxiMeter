@@ -26,7 +26,8 @@
                 android:layout_height="match_parent"
                 android:text="Fare"
                 android:textColor="@android:color/white"
-                android:textSize="36sp" />
+                android:textSize="36sp"
+                app:autoSizeTextType="uniform" />
         </RelativeLayout>
 
         <LinearLayout
@@ -188,6 +189,8 @@
                 android:layout_weight="1"
                 android:background="@color/light_green"
                 android:gravity="center"
+                android:paddingBottom="30dp"
+                android:paddingTop="30dp"
                 android:text="START"
                 android:visibility="visible" />
 
