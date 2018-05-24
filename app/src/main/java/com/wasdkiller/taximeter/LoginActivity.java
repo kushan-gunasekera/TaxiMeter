@@ -31,7 +31,7 @@ public class LoginActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     private final static int RC_SIGN_IN=2;
     public static RelativeLayout loginProgressBarView;
-    GoogleSignInClient mGoogleSignInClient;
+    public static GoogleSignInClient mGoogleSignInClient;
     FirebaseAuth.AuthStateListener mAuthListener;
 
     @Override
@@ -61,13 +61,9 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser()!= null){
-                    Toast.makeText(getApplicationContext(), "Signing in as "+ firebaseAuth.getCurrentUser().getEmail(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Sign in as "+ firebaseAuth.getCurrentUser().getEmail(), Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     Log.i("TaxiMeter", "GOOGLE LOGED IN");
-                }
-                else {
-                    if(MainActivity.signInOutStatus)
-                        Toast.makeText(getApplicationContext(), "logging failed", Toast.LENGTH_SHORT).show();
                 }
                 loginProgressBarView.setVisibility(View.GONE);
             }

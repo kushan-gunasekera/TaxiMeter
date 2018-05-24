@@ -76,7 +76,7 @@ public class LocationService extends Service implements LocationListener{
                 Log.i("TaxiMeter", "total distance : "+String.format("%.1f",MainActivity.totalDistance));
                 MainActivity.distance.setText(String.format("%.1f",MainActivity.totalDistance));
                 Log.i("TaxiMeter", String.format("%.1f",MainActivity.totalDistance));
-                MainActivity.speed.setText(String.valueOf(taxiSpeed));
+                MainActivity.speed.setText(String.format("%.1f",taxiSpeed));
                 if(taxiSpeed==(float)0.0){
                     try {
                         calculateTime();

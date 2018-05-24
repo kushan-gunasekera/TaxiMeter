@@ -44,6 +44,11 @@ import android.provider.Settings;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.io.File;
@@ -68,7 +73,7 @@ public class MainActivity extends AppCompatActivity
     public static Location previousLocation;
     public static float totalDistance;
     public static String waitingTimePeriod;
-    public static boolean statusChanged, signInOutStatus = true;
+    public static boolean statusChanged;
     public static RelativeLayout progressBarView;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
@@ -125,8 +130,8 @@ public class MainActivity extends AppCompatActivity
                 if(firebaseAuth.getCurrentUser()== null){
                     Log.i("TaxiMeter",".getCurrentUser()== null");
                     mAuth.removeAuthStateListener(mAuthListener);
-                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
                     Toast.makeText(getApplicationContext(), "Signing out", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 }
                 else{
                     username.setText(mAuth.getCurrentUser().getDisplayName());
@@ -339,10 +344,17 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_signout) {
-            signInOutStatus = false;
             mAuth.signOut();
+            LoginActivity.mGoogleSignInClient.signOut();
+//            LoginActivity.mGoogleSignInClient.signOut().addOnCompleteListener(this,
+//                    new OnCompleteListener<Void>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<Void> task) {
+//                            Toast.makeText(getApplicationContext(), "Signing out", Toast.LENGTH_SHORT).show();
+//                            Log.i("TaxiMeter","mGoogleSignInClient.signOut()");
+//                        }
+//                    });
             Log.i("TaxiMeter","nav_signout window clicked");
-
         } else if (id == R.id.nav_user_details) {
             Log.i("TaxiMeter","nav_user_details window clicked");
         } else if (id == R.id.nav_history) {
