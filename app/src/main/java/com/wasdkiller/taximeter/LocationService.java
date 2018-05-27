@@ -2,6 +2,7 @@ package com.wasdkiller.taximeter;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Service;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -20,6 +21,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -46,43 +50,34 @@ public class LocationService extends Service implements LocationListener{
             MainActivity.end.setEnabled(true);
             MainActivity.pause.setEnabled(true);
             float taxiSpeed = location.getSpeed()*(float)3.5;
-//        test.taxiMeterUpdate();
-//        Log.i("TaxiMeter", "onLocationChanged");
-//        Log.i("TaxiMeter", MainActivity.speed.toString());
-////        MainActivity.speed.setText("fuck");
-//        Date dt = new Date(location.getTime());
-//        Log.i("TaxiMeter", String.valueOf(dt));
 
             if(MainActivity.previousLocation==null){
-            Log.i("TaxiMeter", "MainActivity.previousLocation==null");
-//            Log.i("TaxiMeter", "set previousLocation values " + location.toString());
                 MainActivity.previousLocation = new Location("");
                 MainActivity.previousLocation = location;
-//            Log.i("TaxiMeter", String.valueOf(MainActivity.previousLocation));
-//            MainActivity.previousLocation.setLongitude();
-//            MainActivity.previousLocation.setLatitude();
-
             }
             else{
-//            Log.i("TaxiMeter", "MainActivity.previousLocation!=null");
-//            Log.i("TaxiMeter", "current gps location " + location.toString());
-                float distance = location.distanceTo(MainActivity.previousLocation);
-                Log.i("TaxiMeter", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" + String.valueOf(distance));
-                Log.i("TaxiMeter", "distance : "+String.format("%.5f",distance));
-                MainActivity.previousLocation = new Location("");
-                MainActivity.previousLocation = location;
-//            Log.i("TaxiMeter", "set previousLocation values " + MainActivity.previousLocation.toString());
-                MainActivity.totalDistance = MainActivity.totalDistance + distance/1000;
-                Log.i("TaxiMeter", "total distance : "+String.format("%.1f",MainActivity.totalDistance));
-                MainActivity.distance.setText(String.format("%.1f",MainActivity.totalDistance));
-                Log.i("TaxiMeter", String.format("%.1f",MainActivity.totalDistance));
-                MainActivity.speed.setText(String.format("%.1f",taxiSpeed));
                 if(taxiSpeed==(float)0.0){
                     try {
                         calculateTime();
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
+                }
+                else{
+                    float distance = location.distanceTo(MainActivity.previousLocation);
+                    MainActivity.previousLocation = new Location("");
+                    MainActivity.previousLocation = location;
+                    MainActivity.totalDistance = MainActivity.totalDistance + distance/1000;
+
+                    if(MainActivity.totalDistance <= 1.00){
+                        float pricePerKM = distance * (MainActivity.finalOtherKM/1000);
+                        BigDecimal bd = new BigDecimal(Float.toString(pricePerKM));
+                        bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+                        setPrice(bd.floatValue());
+                    }
+
+                    MainActivity.distance.setText(String.format("%.2f",MainActivity.totalDistance));
+                    MainActivity.speed.setText(String.format("%.1f",taxiSpeed));
                 }
             }
         }
@@ -101,17 +96,12 @@ public class LocationService extends Service implements LocationListener{
     @Override
     public void onProviderDisabled(String provider) {
         Log.i("TaxiMeter", "onProviderDisabled");
-//        startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
-//        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-//        startActivity(intent);
-//        displayGpsStatus();
         Intent i = new Intent(this, MainActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
     }
 
     public void calculateTime() throws ParseException {
-//        String myTime = "14:10";
         @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
         Date d = df.parse(MainActivity.waitingTimePeriod);
         Calendar cal = Calendar.getInstance();
@@ -119,29 +109,13 @@ public class LocationService extends Service implements LocationListener{
         cal.add(Calendar.SECOND, 1);
         MainActivity.waitingTimePeriod = df.format(cal.getTime());
         MainActivity.waitingTime.setText(MainActivity.waitingTimePeriod);
+        setPrice(MainActivity.finalWaitingPrice / 60);
     }
 
-//    private void displayGpsStatus(){
-//        ContentResolver contentResolver = getBaseContext().getContentResolver();
-//        boolean gpsStatus = Settings.Secure.isLocationProviderEnabled(contentResolver, LocationManager.GPS_PROVIDER);
-//        if(gpsStatus){
-//            Toast.makeText(LocationService.this, "GPS Enabled: ", Toast.LENGTH_LONG).show();
-//        }else{
-//            Toast.makeText(LocationService.this, "GPS Disabled: ", Toast.LENGTH_LONG).show();
-//        }
-//    }
-
-//    private void CheckEnableGPS(){
-//        String provider = Settings.Secure.getString(getContentResolver(),
-//                Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-//        if(!provider.equals("")){
-//            //GPS Enabled
-//            Toast.makeText(LocationService.this, "GPS Enabled: " + provider,
-//                    Toast.LENGTH_LONG).show();
-//        }else{
-//            Intent intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
-//            startActivity(intent);
-//        }
-//
-//    }
+    public void setPrice(float addingValue){
+        Log.i("TaxiMeter", "addingValue : " + addingValue);
+        float getFareValue = Float.valueOf("" + MainActivity.fare.getText());
+        MainActivity.totalPrice = getFareValue + addingValue;
+        MainActivity.fare.setText(String.format("%.2f",MainActivity.totalPrice));
+    }
 }

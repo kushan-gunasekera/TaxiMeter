@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -78,9 +79,10 @@ public class MainActivity extends AppCompatActivity
     public static ImageView userImage;
     public static String userFullName, userEmail, userID, waitingTimePeriod;
     public static Location previousLocation;
-    public static float totalDistance;
+    public static float totalDistance, finalFirstKM, finalOtherKM, finalWaitingPrice, totalPrice;
     public static boolean statusChanged;
     public static RelativeLayout progressBarView;
+    public static SharedPreferences shrPrf;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
     Typeface taxiFont;
@@ -130,6 +132,7 @@ public class MainActivity extends AppCompatActivity
         waitingTime.setTypeface(taxiFont);
         fare.setTypeface(taxiFont);
         databaseReference = FirebaseDatabase.getInstance().getReference();
+        shrPrf = this.getSharedPreferences("com.wasdkiller.taximeter", MODE_PRIVATE);
 
 //        TableLayout t = (TableLayout) findViewById(R.id.activity_settings);
 
@@ -174,7 +177,14 @@ public class MainActivity extends AppCompatActivity
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fare.setText("0000.00");
+
+                finalFirstKM = shrPrf.getFloat("firstkm",50);
+                finalOtherKM = shrPrf.getFloat("otherkm",30);
+                finalWaitingPrice = shrPrf.getFloat("waiting",1.5f);
+
+                totalPrice = finalFirstKM;
+
+                fare.setText("" + totalPrice);
                 distance.setText("00.0");
                 waitingTime.setText("00:00:00");
                 speed.setText("00.0");
