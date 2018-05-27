@@ -23,6 +23,9 @@ import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -38,6 +41,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.provider.Settings;
@@ -50,6 +54,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.File;
 import java.io.IOException;
@@ -70,15 +76,17 @@ public class MainActivity extends AppCompatActivity
     public static Button start, end, pause, resume;
     public static TextView speed, distance, waitingTime, fare, username, email;
     public static ImageView userImage;
+    public static String userFullName, userEmail, userID, waitingTimePeriod;
     public static Location previousLocation;
     public static float totalDistance;
-    public static String waitingTimePeriod;
     public static boolean statusChanged;
     public static RelativeLayout progressBarView;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
     Typeface taxiFont;
     Uri uri;
+
+    private DatabaseReference databaseReference;
 
     @Override
     protected void onStart() {
@@ -121,6 +129,10 @@ public class MainActivity extends AppCompatActivity
         distance.setTypeface(taxiFont);
         waitingTime.setTypeface(taxiFont);
         fare.setTypeface(taxiFont);
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+
+//        TableLayout t = (TableLayout) findViewById(R.id.activity_settings);
+
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -134,8 +146,11 @@ public class MainActivity extends AppCompatActivity
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 }
                 else{
-                    username.setText(mAuth.getCurrentUser().getDisplayName());
-                    email.setText(mAuth.getCurrentUser().getEmail());
+                    userFullName = mAuth.getCurrentUser().getDisplayName();
+                    userEmail = mAuth.getCurrentUser().getEmail();
+                    userID = mAuth.getCurrentUser().getUid();
+                    username.setText(userFullName);
+                    email.setText(userEmail);
                     uri = Uri.parse(mAuth.getCurrentUser().getPhotoUrl().toString());
 
                     userImage.setImageURI(uri);
@@ -146,6 +161,9 @@ public class MainActivity extends AppCompatActivity
                             .bitmapTransform(new CircleTransform(getApplicationContext()))
                             .diskCacheStrategy(DiskCacheStrategy.ALL)
                             .into(userImage);
+
+                    databaseReference.child(userID).child("userFullName").setValue(userFullName);
+                    databaseReference.child(userID).child("userEmail").setValue(userEmail);
                 }
                 progressBarView.setVisibility(View.GONE);
             }
@@ -337,7 +355,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -346,14 +363,6 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_signout) {
             mAuth.signOut();
             LoginActivity.mGoogleSignInClient.signOut();
-//            LoginActivity.mGoogleSignInClient.signOut().addOnCompleteListener(this,
-//                    new OnCompleteListener<Void>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<Void> task) {
-//                            Toast.makeText(getApplicationContext(), "Signing out", Toast.LENGTH_SHORT).show();
-//                            Log.i("TaxiMeter","mGoogleSignInClient.signOut()");
-//                        }
-//                    });
             Log.i("TaxiMeter","nav_signout window clicked");
         } else if (id == R.id.nav_user_details) {
             Log.i("TaxiMeter","nav_user_details window clicked");
@@ -361,6 +370,7 @@ public class MainActivity extends AppCompatActivity
             Log.i("TaxiMeter","nav_history window clicked");
         } else if (id == R.id.nav_settings) {
             Log.i("TaxiMeter","nav_settings window click start");
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
