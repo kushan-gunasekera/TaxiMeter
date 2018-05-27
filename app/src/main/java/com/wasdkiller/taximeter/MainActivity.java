@@ -61,6 +61,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -78,9 +79,9 @@ public class MainActivity extends AppCompatActivity
     public static TextView speed, distance, waitingTime, fare, username, email;
     public static ImageView userImage;
     public static String userFullName, userEmail, userID, waitingTimePeriod;
-    public static Location previousLocation;
+    public static Location previousLocation, startLocation, endLocation;
     public static float totalDistance, finalFirstKM, finalOtherKM, finalWaitingPrice, totalPrice;
-    public static boolean statusChanged;
+    public static boolean statusChanged, firstOrLast;
     public static RelativeLayout progressBarView;
     public static SharedPreferences shrPrf;
     FirebaseAuth mAuth;
@@ -88,7 +89,7 @@ public class MainActivity extends AppCompatActivity
     Typeface taxiFont;
     Uri uri;
 
-    private DatabaseReference databaseReference;
+    public static DatabaseReference databaseReference;
 
     @Override
     protected void onStart() {
@@ -177,17 +178,15 @@ public class MainActivity extends AppCompatActivity
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 finalFirstKM = shrPrf.getFloat("firstkm",50);
                 finalOtherKM = shrPrf.getFloat("otherkm",30);
                 finalWaitingPrice = shrPrf.getFloat("waiting",1.5f);
-
                 totalPrice = finalFirstKM;
-
                 fare.setText("" + totalPrice);
                 distance.setText("00.0");
                 waitingTime.setText("00:00:00");
                 speed.setText("00.0");
+                firstOrLast = true;
                 Log.i("TaxiMeter", "START button pressed");
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -231,6 +230,25 @@ public class MainActivity extends AppCompatActivity
                 pause.setVisibility(View.GONE);
                 resume.setVisibility(View.GONE);
                 progressBarView.setVisibility(View.GONE);
+
+                BigDecimal bd = new BigDecimal(Float.toString(totalDistance));
+                bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+                Log.i("TaxiMeter", "totalDistance : " + bd.toString());
+
+                BigDecimal db = new BigDecimal(Float.toString(totalPrice));
+                db = db.setScale(2, BigDecimal.ROUND_HALF_UP);
+                Log.i("TaxiMeter", "totalPrice : " + db.toString());
+
+                Log.i("TaxiMeter", "waitingTimePeriod : " + waitingTimePeriod);
+                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLongitude());
+                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLatitude());
+                Log.i("TaxiMeter", "endLocation longatitude : " + endLocation.getLongitude());
+                Log.i("TaxiMeter", "endLocation latitude : " + endLocation.getLatitude());
+
+                String pathID = databaseReference.child(userID).child("history").push().getKey();
+                TripDetails tripDetails = new TripDetails(bd.toString(), db.toString(), waitingTimePeriod, Double.toString(startLocation.getLongitude()), Double.toString(startLocation.getLatitude()), Double.toString(endLocation.getLongitude()), Double.toString(endLocation.getLatitude()));
+
+                databaseReference.child(userID).child("history").child(pathID).setValue(tripDetails);
             }
         });
 

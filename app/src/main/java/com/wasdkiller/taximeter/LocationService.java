@@ -51,12 +51,21 @@ public class LocationService extends Service implements LocationListener{
             MainActivity.pause.setEnabled(true);
             float taxiSpeed = location.getSpeed()*(float)3.5;
 
+            if(MainActivity.firstOrLast){
+                MainActivity.startLocation = location;
+                MainActivity.firstOrLast = false;
+            }
+            else {
+                MainActivity.endLocation = location;
+            }
+
             if(MainActivity.previousLocation==null){
                 MainActivity.previousLocation = new Location("");
                 MainActivity.previousLocation = location;
             }
             else{
                 if(taxiSpeed==(float)0.0){
+                    MainActivity.speed.setText("0.0");
                     try {
                         calculateTime();
                     } catch (ParseException e) {
@@ -69,13 +78,12 @@ public class LocationService extends Service implements LocationListener{
                     MainActivity.previousLocation = location;
                     MainActivity.totalDistance = MainActivity.totalDistance + distance/1000;
 
-                    if(MainActivity.totalDistance <= 1.00){
+                    if(MainActivity.totalDistance >= 1.00){
                         float pricePerKM = distance * (MainActivity.finalOtherKM/1000);
                         BigDecimal bd = new BigDecimal(Float.toString(pricePerKM));
                         bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
                         setPrice(bd.floatValue());
                     }
-
                     MainActivity.distance.setText(String.format("%.2f",MainActivity.totalDistance));
                     MainActivity.speed.setText(String.format("%.1f",taxiSpeed));
                 }
@@ -113,7 +121,6 @@ public class LocationService extends Service implements LocationListener{
     }
 
     public void setPrice(float addingValue){
-        Log.i("TaxiMeter", "addingValue : " + addingValue);
         float getFareValue = Float.valueOf("" + MainActivity.fare.getText());
         MainActivity.totalPrice = getFareValue + addingValue;
         MainActivity.fare.setText(String.format("%.2f",MainActivity.totalPrice));
