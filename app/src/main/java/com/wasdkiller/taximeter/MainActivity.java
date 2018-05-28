@@ -66,6 +66,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.sql.Time;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static com.wasdkiller.taximeter.R.id.emailView;
 import static com.wasdkiller.taximeter.R.id.userImageView;
@@ -84,6 +86,7 @@ public class MainActivity extends AppCompatActivity
     public static boolean statusChanged, firstOrLast;
     public static RelativeLayout progressBarView;
     public static SharedPreferences shrPrf;
+    public static Date startNow, endNow;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener mAuthListener;
     Typeface taxiFont;
@@ -221,10 +224,12 @@ public class MainActivity extends AppCompatActivity
         });
 
         end.setOnClickListener(new View.OnClickListener() {
+            @SuppressLint("SimpleDateFormat")
             @Override
             public void onClick(View v) {
                 Log.i("TaxiMeter", "END button pressed");
                 locationManager.removeUpdates(locationListener);
+                endNow = new Date( );
                 start.setVisibility(View.VISIBLE);
                 end.setVisibility(View.GONE);
                 pause.setVisibility(View.GONE);
@@ -233,20 +238,22 @@ public class MainActivity extends AppCompatActivity
 
                 BigDecimal bd = new BigDecimal(Float.toString(totalDistance));
                 bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-                Log.i("TaxiMeter", "totalDistance : " + bd.toString());
+//                Log.i("TaxiMeter", "totalDistance : " + bd.toString());
 
                 BigDecimal db = new BigDecimal(Float.toString(totalPrice));
                 db = db.setScale(2, BigDecimal.ROUND_HALF_UP);
-                Log.i("TaxiMeter", "totalPrice : " + db.toString());
+//                Log.i("TaxiMeter", "totalPrice : " + db.toString());
 
-                Log.i("TaxiMeter", "waitingTimePeriod : " + waitingTimePeriod);
-                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLongitude());
-                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLatitude());
-                Log.i("TaxiMeter", "endLocation longatitude : " + endLocation.getLongitude());
-                Log.i("TaxiMeter", "endLocation latitude : " + endLocation.getLatitude());
+//                Log.i("TaxiMeter", "waitingTimePeriod : " + waitingTimePeriod);
+//                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLongitude());
+//                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLatitude());
+//                Log.i("TaxiMeter", "endLocation longatitude : " + endLocation.getLongitude());
+//                Log.i("TaxiMeter", "endLocation latitude : " + endLocation.getLatitude());
+
+                SimpleDateFormat simpleDateFormat = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a");
 
                 String pathID = databaseReference.child(userID).child("history").push().getKey();
-                TripDetails tripDetails = new TripDetails(bd.toString(), db.toString(), waitingTimePeriod, Double.toString(startLocation.getLongitude()), Double.toString(startLocation.getLatitude()), Double.toString(endLocation.getLongitude()), Double.toString(endLocation.getLatitude()));
+                TripDetails tripDetails = new TripDetails(bd.toString(), db.toString(), waitingTimePeriod, Double.toString(startLocation.getLongitude()), Double.toString(startLocation.getLatitude()), Double.toString(endLocation.getLongitude()), Double.toString(endLocation.getLatitude()), simpleDateFormat.format(startNow), simpleDateFormat.format(endNow));
 
                 databaseReference.child(userID).child("history").child(pathID).setValue(tripDetails);
             }
@@ -274,67 +281,6 @@ public class MainActivity extends AppCompatActivity
         });
 
     }
-
-//    public class LocationService extends Service implements LocationListener{
-//
-//        @Nullable
-//        @Override
-//        public IBinder onBind(Intent intent) {
-//            return null;
-//        }
-//
-//        @Override
-//        public void onLocationChanged(Location location) {
-//            Log.i("TaxiMeter", location.toString());
-//            Log.i("TaxiMeter", "Speed + " + String.valueOf(location.getSpeed()));
-////        String.valueOf(location.getSpeed());
-//            taxiMeterUpdate(String.valueOf(location.getSpeed()));
-////        test.taxiMeterUpdate();
-//        }
-//
-//        @Override
-//        public void onStatusChanged(String provider, int status, Bundle extras) {
-//            Log.i("TaxiMeter", "onStatusChanged");
-//        }
-//
-//        @Override
-//        public void onProviderEnabled(String provider) {
-//            Log.i("TaxiMeter", "onProviderEnabled");
-//        }
-//
-//        @Override
-//        public void onProviderDisabled(String provider) {
-//            Log.i("TaxiMeter", "onProviderDisabled");
-////        startActivity(new Intent(Settings.ACTION_SECURITY_SETTINGS));
-////        Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-////            startActivity(intent);
-////        displayGpsStatus();
-//        }
-
-//    private void displayGpsStatus(){
-//        ContentResolver contentResolver = getBaseContext().getContentResolver();
-//        boolean gpsStatus = Settings.Secure.isLocationProviderEnabled(contentResolver, LocationManager.GPS_PROVIDER);
-//        if(gpsStatus){
-//            Toast.makeText(LocationService.this, "GPS Enabled: ", Toast.LENGTH_LONG).show();
-//        }else{
-//            Toast.makeText(LocationService.this, "GPS Disabled: ", Toast.LENGTH_LONG).show();
-//        }
-//    }
-
-//    private void CheckEnableGPS(){
-//        String provider = Settings.Secure.getString(getContentResolver(),
-//                Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-//        if(!provider.equals("")){
-//            //GPS Enabled
-//            Toast.makeText(LocationService.this, "GPS Enabled: " + provider,
-//                    Toast.LENGTH_LONG).show();
-//        }else{
-//            Intent intent = new Intent(Settings.ACTION_SECURITY_SETTINGS);
-//            startActivity(intent);
-//        }
-//
-//    }
-//    }
 
     public void taxiMeterUpdate(String kmh){
         Log.i("TaxiMeter", "taxiMeterUpdate " + kmh);
@@ -396,6 +342,7 @@ public class MainActivity extends AppCompatActivity
             Log.i("TaxiMeter","nav_user_details window clicked");
         } else if (id == R.id.nav_history) {
             Log.i("TaxiMeter","nav_history window clicked");
+            startActivity(new Intent(MainActivity.this, HistoryActivity.class));
         } else if (id == R.id.nav_settings) {
             Log.i("TaxiMeter","nav_settings window click start");
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));

@@ -43,6 +43,7 @@ public class LocationService extends Service implements LocationListener{
         return null;
     }
 
+    @SuppressLint("SimpleDateFormat")
     @Override
     public void onLocationChanged(Location location) {
         if(MainActivity.statusChanged){
@@ -52,6 +53,7 @@ public class LocationService extends Service implements LocationListener{
             float taxiSpeed = location.getSpeed()*(float)3.5;
 
             if(MainActivity.firstOrLast){
+                MainActivity.startNow = new Date( );
                 MainActivity.startLocation = location;
                 MainActivity.firstOrLast = false;
             }

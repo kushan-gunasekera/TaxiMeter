@@ -1,5 +1,7 @@
 package com.wasdkiller.taximeter;
 
+import android.util.Log;
+
 public class TripDetails {
 
     String distance;
@@ -9,12 +11,15 @@ public class TripDetails {
     String stringLatitude;
     String endingLongitude;
     String endingLatitude;
+    String startDataAndTime;
+    String endDataAndTime;
 
     public TripDetails(){
 
     }
 
-    public TripDetails(String distance, String price, String waitingTime, String startingLongitude, String stringLatitude, String endingLongitude, String endingLatitude) {
+    public TripDetails(String distance, String price, String waitingTime, String startingLongitude, String stringLatitude, String endingLongitude, String endingLatitude, String startDataAndTime, String endDataAndTime) {
+        Log.i("TaxiMeter", "im here TripDetails");
         this.distance = distance;
         this.price = price;
         this.waitingTime = waitingTime;
@@ -22,6 +27,8 @@ public class TripDetails {
         this.stringLatitude = stringLatitude;
         this.endingLongitude = endingLongitude;
         this.endingLatitude = endingLatitude;
+        this.startDataAndTime = startDataAndTime;
+        this.endDataAndTime = endDataAndTime;
     }
 
     public String getDistance() {
@@ -50,5 +57,13 @@ public class TripDetails {
 
     public String getEndingLatitude() {
         return endingLatitude;
+    }
+
+    public String getStartDataAndTime() {
+        return startDataAndTime;
+    }
+
+    public String getEndDataAndTime() {
+        return endDataAndTime;
     }
 }
