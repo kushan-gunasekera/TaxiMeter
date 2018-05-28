@@ -75,12 +75,6 @@
                 android:text="79.91709239"
                 tools:ignore="HardcodedText" />
 
-            <com.google.android.gms.maps.MapView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            </com.google.android.gms.maps.MapView>
-
         </LinearLayout>
 
     </android.support.v7.widget.CardView>

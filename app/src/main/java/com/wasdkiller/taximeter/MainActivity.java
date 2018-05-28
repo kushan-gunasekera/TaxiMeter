@@ -338,8 +338,6 @@ public class MainActivity extends AppCompatActivity
             mAuth.signOut();
             LoginActivity.mGoogleSignInClient.signOut();
             Log.i("TaxiMeter","nav_signout window clicked");
-        } else if (id == R.id.nav_user_details) {
-            Log.i("TaxiMeter","nav_user_details window clicked");
         } else if (id == R.id.nav_history) {
             Log.i("TaxiMeter","nav_history window clicked");
             startActivity(new Intent(MainActivity.this, HistoryActivity.class));
