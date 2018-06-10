@@ -55,11 +55,13 @@ public class LocationService extends Service implements LocationListener{
 
             if(MainActivity.previousLocation==null){
                 // Very first time adding details about the starting location
+
                 MainActivity.previousLocation = new Location("");
                 MainActivity.previousLocation = location;
             }
             else{
                 // Checking the speed of the device
+
                 if(taxiSpeed==(float)0.0){
                     MainActivity.speed.setText("0.0");
                     try {
