@@ -4,6 +4,8 @@ import android.util.Log;
 
 public class ListItem {
 
+    // ListItem is the class for display history details
+
     private String distance;
     private String price;
     private String waitingTime;
@@ -19,7 +21,6 @@ public class ListItem {
     }
 
     public ListItem(String distance, String price, String waitingTime, String startingLongitude, String stringLatitude, String endingLongitude, String endingLatitude, String startDataAndTime, String endDataAndTime) {
-        Log.i("TaxiMeter", "im here ListItem");
         this.distance = "Distance : " + distance + "km";
         this.price = "Price : Rs." + price+"/=";
         this.waitingTime = "Waiting Time : " + waitingTime;

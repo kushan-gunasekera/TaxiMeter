@@ -1,8 +1,8 @@
 package com.wasdkiller.taximeter;
 
-import android.util.Log;
-
 public class TripDetails {
+
+    // TripDetails is the class for save the details about trip
 
     String distance;
     String price;
@@ -19,7 +19,6 @@ public class TripDetails {
     }
 
     public TripDetails(String distance, String price, String waitingTime, String startingLongitude, String stringLatitude, String endingLongitude, String endingLatitude, String startDataAndTime, String endDataAndTime) {
-        Log.i("TaxiMeter", "im here TripDetails");
         this.distance = distance;
         this.price = price;
         this.waitingTime = waitingTime;

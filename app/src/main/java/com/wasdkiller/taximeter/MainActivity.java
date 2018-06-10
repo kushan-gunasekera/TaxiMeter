@@ -2,14 +2,10 @@ package com.wasdkiller.taximeter;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.location.LocationListener;
@@ -17,16 +13,9 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.View;
@@ -40,37 +29,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.provider.Settings;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.math.BigDecimal;
-import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URL;
-import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import static com.wasdkiller.taximeter.R.id.emailView;
-import static com.wasdkiller.taximeter.R.id.userImageView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -138,21 +109,20 @@ public class MainActivity extends AppCompatActivity
         databaseReference = FirebaseDatabase.getInstance().getReference();
         shrPrf = this.getSharedPreferences("com.wasdkiller.taximeter", MODE_PRIVATE);
 
-//        TableLayout t = (TableLayout) findViewById(R.id.activity_settings);
-
-
+        // Checking Firebase authentication status
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @RequiresApi(api = Build.VERSION_CODES.KITKAT)
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 progressBarView.setVisibility(View.VISIBLE);
                 if(firebaseAuth.getCurrentUser()== null){
-                    Log.i("TaxiMeter",".getCurrentUser()== null");
+                    // Load into the login window
                     mAuth.removeAuthStateListener(mAuthListener);
                     Toast.makeText(getApplicationContext(), "Signing out", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
                 }
                 else{
+                    // Display user infomation in a menu bar
                     userFullName = mAuth.getCurrentUser().getDisplayName();
                     userEmail = mAuth.getCurrentUser().getEmail();
                     userID = mAuth.getCurrentUser().getUid();
@@ -162,6 +132,7 @@ public class MainActivity extends AppCompatActivity
 
                     userImage.setImageURI(uri);
 
+                    // Loading user's image in menu bar with cicrle
                     Glide.with(getApplicationContext()).load(mAuth.getCurrentUser().getPhotoUrl().toString())
                             .crossFade()
                             .thumbnail(0.5f)
@@ -176,8 +147,10 @@ public class MainActivity extends AppCompatActivity
             }
         };
 
+        // Checking the permission when app starting
         checkPermission();
 
+        // START button function
         start.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -190,7 +163,6 @@ public class MainActivity extends AppCompatActivity
                 waitingTime.setText("00:00:00");
                 speed.setText("00.0");
                 firstOrLast = true;
-                Log.i("TaxiMeter", "START button pressed");
                 locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
                 if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     // TODO: Consider calling
@@ -200,15 +172,10 @@ public class MainActivity extends AppCompatActivity
                     //                                          int[] grantResults)
                     // to handle the case where the user grants the permission. See the documentation
                     // for ActivityCompat#requestPermissions for more details.
-//                    if(ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-//                        ActivityCompat.requestPermissions(getApplicationContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
-//                    }
-//                    ActivityCompat.requestPermissions((Activity) getApplicationContext(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
                     checkPermission();
-                    Log.i("TaxiMeter", "ELSE PART");
                     return;
                 }
-                Log.i("TaxiMeter", "IF PART");
+
                 previousLocation = null;
                 waitingTimePeriod = "00:00:00";
                 totalDistance = (float) 0;
@@ -223,11 +190,11 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // END button pressed
         end.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("SimpleDateFormat")
             @Override
             public void onClick(View v) {
-                Log.i("TaxiMeter", "END button pressed");
                 locationManager.removeUpdates(locationListener);
                 endNow = new Date( );
                 start.setVisibility(View.VISIBLE);
@@ -238,17 +205,9 @@ public class MainActivity extends AppCompatActivity
 
                 BigDecimal bd = new BigDecimal(Float.toString(totalDistance));
                 bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-//                Log.i("TaxiMeter", "totalDistance : " + bd.toString());
 
                 BigDecimal db = new BigDecimal(Float.toString(totalPrice));
                 db = db.setScale(2, BigDecimal.ROUND_HALF_UP);
-//                Log.i("TaxiMeter", "totalPrice : " + db.toString());
-
-//                Log.i("TaxiMeter", "waitingTimePeriod : " + waitingTimePeriod);
-//                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLongitude());
-//                Log.i("TaxiMeter", "startLocation longatiude : " + startLocation.getLatitude());
-//                Log.i("TaxiMeter", "endLocation longatitude : " + endLocation.getLongitude());
-//                Log.i("TaxiMeter", "endLocation latitude : " + endLocation.getLatitude());
 
                 SimpleDateFormat simpleDateFormat = new SimpleDateFormat ("E yyyy.MM.dd 'at' hh:mm:ss a");
 
@@ -259,6 +218,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // PAUSE button pressed
         pause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -270,6 +230,7 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        // RESUME button pressed
         resume.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -282,29 +243,12 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void taxiMeterUpdate(String kmh){
-        Log.i("TaxiMeter", "taxiMeterUpdate " + kmh);
-        speed.setText(kmh);
-        Toast.makeText(this, kmh, Toast.LENGTH_SHORT).show();
-    }
-
+    // Checking location permission
     public void checkPermission(){
-        Log.i("TaxiMeter", "checkPermission");
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
         }
     }
-
-
-//    @Override
-//    public void onBackPressed() {
-//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (drawer.isDrawerOpen(GravityCompat.START)) {
-//            drawer.closeDrawer(GravityCompat.START);
-//        } else {
-//            super.onBackPressed();
-//        }
-//    }
 
 
     @Override
@@ -314,20 +258,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
 
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {

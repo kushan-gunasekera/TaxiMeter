@@ -1,29 +1,17 @@
 package com.wasdkiller.taximeter;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Service;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import android.provider.Settings;
 import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -53,19 +41,25 @@ public class LocationService extends Service implements LocationListener{
             float taxiSpeed = location.getSpeed()*(float)3.5;
 
             if(MainActivity.firstOrLast){
+                //Saving the details about Starting location and date/time
+
                 MainActivity.startNow = new Date( );
                 MainActivity.startLocation = location;
                 MainActivity.firstOrLast = false;
             }
             else {
+                //Saving the details about Ending location
+
                 MainActivity.endLocation = location;
             }
 
             if(MainActivity.previousLocation==null){
+                // Very first time adding details about the starting location
                 MainActivity.previousLocation = new Location("");
                 MainActivity.previousLocation = location;
             }
             else{
+                // Checking the speed of the device
                 if(taxiSpeed==(float)0.0){
                     MainActivity.speed.setText("0.0");
                     try {
@@ -81,6 +75,8 @@ public class LocationService extends Service implements LocationListener{
                     MainActivity.totalDistance = MainActivity.totalDistance + distance/1000;
 
                     if(MainActivity.totalDistance >= 1.00){
+                        // Display the distance details
+
                         float pricePerKM = distance * (MainActivity.finalOtherKM/1000);
                         BigDecimal bd = new BigDecimal(Float.toString(pricePerKM));
                         bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
@@ -95,22 +91,22 @@ public class LocationService extends Service implements LocationListener{
 
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
-        Log.i("TaxiMeter", "onStatusChanged");
+
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.i("TaxiMeter", "onProviderEnabled");
+
     }
 
     @Override
     public void onProviderDisabled(String provider) {
-        Log.i("TaxiMeter", "onProviderDisabled");
         Intent i = new Intent(this, MainActivity.class);
         i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(i);
     }
 
+    // Calculate the waiting time
     public void calculateTime() throws ParseException {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat df = new SimpleDateFormat("HH:mm:ss");
         Date d = df.parse(MainActivity.waitingTimePeriod);
@@ -122,6 +118,7 @@ public class LocationService extends Service implements LocationListener{
         setPrice(MainActivity.finalWaitingPrice / 60);
     }
 
+    // Calculate the price
     public void setPrice(float addingValue){
         float getFareValue = Float.valueOf("" + MainActivity.fare.getText());
         MainActivity.totalPrice = getFareValue + addingValue;

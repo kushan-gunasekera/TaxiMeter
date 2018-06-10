@@ -1,7 +1,6 @@
 package com.wasdkiller.taximeter;
 
 import android.app.Activity;
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,7 +21,6 @@ public class HistoryActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RecyclerView.Adapter adapter;
     private List<ListItem> listItems;
-
     private DatabaseReference databaseReference;
     private Activity context;
 

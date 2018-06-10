@@ -1,6 +1,5 @@
 package com.wasdkiller.taximeter;
 
-import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -18,7 +17,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     private LayoutInflater mInflater;
 
     public ListAdapter( List<ListItem> listItems, Context context){
-//        super(context, R.layout.rowlayout, li);
         this.listItems = listItems;
         this.mInflater = LayoutInflater.from(context);
         this.context=context; //<< initialize here
@@ -27,7 +25,6 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
     // data is passed into the constructor
     ListAdapter(Context context, List<String> data) {
         this.mInflater = LayoutInflater.from(context);
-//        this.mData = data;
     }
 
     @Override

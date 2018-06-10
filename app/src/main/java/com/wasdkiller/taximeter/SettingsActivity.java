@@ -6,10 +6,7 @@ import android.content.res.Configuration;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.InputType;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,24 +42,14 @@ public class SettingsActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("TaxiMeter", "SAVE BUTTON CLICKED");
                 try{
-                    Log.i("TaxiMeter", "firstkm : " + firstKMView.getText());
-                    Log.i("TaxiMeter", "otherkm : " + otherKMView.getText());
-                    Log.i("TaxiMeter", "waiting : " + waitingMinView.getText());
-
                     firstkm = Float.valueOf("" + firstKMView.getText());
                     otherkm = Float.valueOf("" + otherKMView.getText());
                     waiting = Float.valueOf("" +  waitingMinView.getText());
 
-                    Log.i("TaxiMeter", "firstkm : " + firstkm.toString());
-                    Log.i("TaxiMeter", "otherkm : " + otherkm.toString());
-                    Log.i("TaxiMeter", "waiting : " + waiting.toString());
-
                     setValues(firstkm, otherkm, waiting);
                 }
                 catch (Exception e){
-                    Log.i("TaxiMeter", "Exception : " + e.toString());
                     Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
 
@@ -72,6 +59,8 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void setValues(Float setFirstKM, Float setOtherKM, Float setWaitingMin){
+        // Saved into the cache memory about the details of Settings
+
         if(setFirstKM==-1f){
             sharedPreferences.edit().putFloat("firstkm", -1f);
             firstKMView.setText("50.0");
